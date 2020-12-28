@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>移动文件</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/src/style/common.css" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="layuiadmin-form-moveAttachment" id="layuiadmin-form-moveAttachment" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">文件分类<i>*</i></label>
+        <div class="layui-input-block">
+			 <select id="type_id" name="type_id" lay-verify="required">
+				<option value="">请选择文件分类</option>
+			 </select>
+        </div>
+        <input type="hidden" id="a_id" name="a_id">
+    </div>
+    <div class="layui-form-item layui-hide">
+        <button class="layui-btn" lay-submit lay-filter="LAY-moveAttachment-submit" id="LAY-moveAttachment-submit">提交</button>
+    </div>
+</div>
+
+<script src="/src/lib/jquery-1.10.2.min.js"></script>
+<script src="/src/lib/base.js"></script>
+<script src="/src/lib/utils.js"></script>
+<script src="/layui/layui.js"></script>
+
+<script type="text/javascript">
+	
+	
+    layui.config({
+        base: '/src/' //静态资源所在路径 
+    }).extend({
+        index: 'index' //主入口模块
+    }).use(['index', 'form', 'tree','upload'], function(){
+        var	tree = layui.tree ,
+        form = layui.form,
+        upload=layui.upload ;
+
+        
+        form.verify({
+            type_id : function(value) {
+            	if(value==''){
+            		return "请选择文件分类";
+            	}
+            }
+            
+        });
+		
+		$(function(){
+		   //获取商品分类
+			var a_id = window.parent.layui.a_id;
+			$("#a_id").val(a_id);
+			get({
+				url: '/attachmentType/listAll',
+				data:{
+				},
+				success:function(res){
+				    console.log("res",res)
+					if(res.rescode==200){
+						 var list=res.data;
+						 var html='';
+						 html=html+'<option value="">请选择文件分类</option>';
+						 for(var i=0;i<list.length;i++){
+						   html+='<option value="'+list[i].id+'">'+list[i].type_name+'</option>';
+						 }
+						 $("#type_id").html(html);
+						 form.render();
+					}else{
+        				layer.msg(res.msg);
+        			}	
+				}
+			})
+		})	
+    });
+    
+</script>
+</body>
+
+</html>

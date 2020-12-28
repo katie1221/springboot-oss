@@ -1,0 +1,68 @@
+#top{  
+	_width:100%; 
+	min-width:800px; 
+	height:98px;
+	position:relative; 
+	/* background:url(/static/img/images/topbg.jpg); */
+	background: #1e9fff;
+}
+#logo{ padding-left:28px; padding-top:30px; width:345px; position:absolute; left:0px;font-size: 25px;color: #fff;    font-family: "Arial","Microsoft YaHei","黑体","宋体",sans-serif;}
+#topRight{ 
+	width:483px; 
+	height:100%;
+	/* background:url(/static/img/images/rightbg.jpg) no-repeat; */
+	position:absolute; 
+	right:0px;
+
+}
+.handlink{ cursor: pointer;}
+#topRight ul{ 
+	margin-top:13px; 
+	margin-left:-10px;
+	display: flex;
+	justify-content:center;
+	align-items:center;
+}
+#topRight ul li { float:left; color:#e2edff; margin-left:15px; padding-left:12px; list-style:none; }
+#topRight ul li a{ color:#e2edff; text-decoration:none;}
+#topRight ul li a:hover{ color:#e2edff; text-decoration:underline;}
+#topRight ul li a:visited{ color:#e2edff; text-decoration:none;}
+#topRight span{float:left;color:#fff; display:inline-block; margin:30px 0 0 0px;}
+#topRight img{margin: 0 4px 0 10px;vertical-align: middle;}
+.curdate{ position: fixed;right: 60px;top: 50px;color: #fff;}
+.curdate span{ display:block;}
+.curdate select{ width:150px;color: #e2edff;-webkit-appearance: button;background: none;border: none;outline:none}
+
+.toptitle{position: absolute;
+  top: 31px;
+  left: 300px;
+  font-size: 30;
+  color: #fff;
+  line-height: 30px;
+  font-weight: bold;
+}
+.footer_{width:100%; min-width:800px; height:18px;background: #E0ECFF;line-height: 12px;text-align: center;padding-top: 10px;color: #333;}
+.input{
+width:300px;
+height:30px;
+border:1px solid #ccc;
+color: #333;
+}
+.searchInput{
+	border: 1px solid #ccc;color: #333;height: 25px;width: 140px;
+}
+
+/*添加修改页面数据项*/
+.dataFormItem{
+	margin-bottom:20px;
+	width:300px;
+}
+/*添加修改页面 按钮*/
+.footerBtn{
+	width:300px;
+	text-align: center;
+	padding: 5px 0;
+}
+.btn1{
+	margin-left: 36px;
+}

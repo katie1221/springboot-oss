@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>添加文件分类</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/src/style/common.css" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="layuiadmin-form-attachmentType" id="layuiadmin-form-attachmentType" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">分类名称<i>*</i></label>
+        <div class="layui-input-block">
+			<input type="text" name="type_name" placeholder="请输入分类名称" lay-verify="type_name" maxlength="100" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序<i>*</i></label>
+        <div class="layui-input-block">
+			<input type="text" name="sort" placeholder="请输入排序" lay-verify="sort" maxlength="10" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <button class="layui-btn" lay-submit lay-filter="LAY-attachmentType-submit" id="LAY-attachmentType-submit">提交</button>
+    </div>
+</div>
+
+<script src="/src/lib/jquery-1.10.2.min.js"></script>
+<script src="/src/lib/base.js"></script>
+<script src="/src/lib/utils.js"></script>
+<script src="/layui/layui.js"></script>
+
+<script type="text/javascript">
+	
+	
+    layui.config({
+        base: '/src/' //静态资源所在路径 
+    }).extend({
+        index: 'index' //主入口模块
+    }).use(['index', 'form', 'tree','upload'], function(){
+        var	tree = layui.tree ,
+        form = layui.form,
+        upload=layui.upload ;
+
+        form.verify({
+            type_name : function(value) {
+            	if(value==''){
+            		return "分类名称不能为空";
+            	}
+            	var result = "";
+            	get({
+    	            url: "/attachmentType/get_repeat_count",
+    	            async : false,
+    	            data:{type_name: value},
+    	            dataType:"json",
+    	            success: function(res) 
+    	            {	
+    					if(res.rescode==301){
+    						result = "该名称已存在";
+    					}else if(res.rescode!=200){
+    						result = res.msg;
+    					}
+    	            },
+    	            error: function(){
+    	            	result = "验证失败";
+    	            }
+    			});
+            	if(result!=""){
+            		return result;
+            	}
+            },
+            sort: function(value){
+            	if(value==''){
+            		return '请输入排序值';
+            	}
+            	var pattern = /^$|^[0-9]{0,5}$/;
+				if (!pattern.test(value)) {
+					return '只能是数字且范围0~99999';
+				}
+            }
+            
+        });
+		
+		$(function(){
+		})	
+    });
+    
+</script>
+</body>
+
+</html>
