@@ -21,4 +21,11 @@ public interface OssService {
 	 * @param response
 	 */
 	public void downFile(HttpServletRequest request,HttpServletResponse response);
+
+	/**
+	 * oss 批量下载文件（打包下载）
+	 * @param request
+	 * @param response
+	 */
+	void downloadZip(HttpServletRequest request, HttpServletResponse response);
 }

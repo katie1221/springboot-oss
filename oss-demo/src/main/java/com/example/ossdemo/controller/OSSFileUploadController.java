@@ -1,13 +1,18 @@
 package com.example.ossdemo.controller;
 
+import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.zip.Adler32;
+import java.util.zip.CheckedOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.model.OSSObject;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -159,5 +164,13 @@ public class OSSFileUploadController {
 	@RequestMapping(value = "/downFile", method = {RequestMethod.GET})
 	public void downFile(HttpServletRequest request,HttpServletResponse response){
 		ossService.downFile(request, response);
+    }
+
+	/**
+	 * oss 批量下载文件（打包下载）
+	 */
+	@RequestMapping(value = "/downloadZip", method = {RequestMethod.GET})
+	public void downloadZip(HttpServletRequest request,HttpServletResponse response){
+		ossService.downloadZip(request, response);
     }
 }

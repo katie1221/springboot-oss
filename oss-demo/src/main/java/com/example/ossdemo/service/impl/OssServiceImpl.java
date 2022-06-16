@@ -1,15 +1,7 @@
 package com.example.ossdemo.service.impl;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +9,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.Adler32;
+import java.util.zip.CheckedOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
@@ -78,8 +74,101 @@ public class OssServiceImpl implements OssService {
 		}
 
 	}
-	
-	/**
+
+    /**
+     * 批量下载oss文件（打包下载）
+     * @param request
+     * @param response
+     */
+    @Override
+    public void downloadZip(HttpServletRequest request, HttpServletResponse response) {
+        // 初始化配置参数
+        String OSS_ENDPOINT = OSSConstant.OSS_ENDPOINT;
+        String OSS_ACCESSKEYID = OSSConstant.OSS_ACCESSKEYID;
+        String OSS_ACCESSKEYSECRET = OSSConstant.OSS_ACCESSKEYSECRET;
+        String OSS_BUCKET = OSSConstant.OSS_BUCKET;
+        OSSClient ossClient = null;
+
+        //模拟数据库获取oss图片列表
+        List<String> imageList = new ArrayList<>();
+        imageList.add("https://ruichuanghuanjing.oss-cn-nanjing.aliyuncs.com/file/20220609/210125193_603.png");
+        imageList.add("https://ruichuanghuanjing.oss-cn-nanjing.aliyuncs.com/file/20220609/210231316_221.png");
+        imageList.add("https://ruichuanghuanjing.oss-cn-nanjing.aliyuncs.com/file/20220609/210247235_603.png");
+        try {
+            // 初始化
+            ossClient = new OSSClient(OSS_ENDPOINT, OSS_ACCESSKEYID, OSS_ACCESSKEYSECRET);
+
+            //压缩包名称  自行定义
+            String fileName = "qr_code.zip";
+            // 创建临时文件
+            File  zipFile = File.createTempFile("qr_code", ".zip");
+            FileOutputStream f = new FileOutputStream(zipFile);
+            /**
+             * 作用是为任何OutputStream产生校验和
+             * 第一个参数是制定产生校验和的输出流，第二个参数是指定Checksum的类型 （Adler32（较快）和CRC32两种）
+             */
+            CheckedOutputStream csum = new CheckedOutputStream(f, new Adler32());
+            // 用于将数据压缩成Zip文件格式
+            ZipOutputStream zos = new ZipOutputStream(csum);
+            //域名
+            String oss_domain = OSSConstant.OSS_PIC_URL;
+            for (String oss_url:imageList){
+                //要下载的文件名（Object Name）字符串
+                String ossfile = oss_url.replace(oss_domain, "");
+                // 获取Object，返回结果为OSSObject对象
+                OSSObject ossObject = ossClient.getObject(OSS_BUCKET, ossfile);
+                // 读去Object内容  返回
+                InputStream inputStream = ossObject.getObjectContent();
+                // 对于每一个要被存放到压缩包的文件，都必须调用ZipOutputStream对象的putNextEntry()方法，确保压缩包里面文件不同名
+
+                zos.putNextEntry(new ZipEntry(ossfile.split("/")[2]));
+                int bytesRead = 0;
+                // 向压缩文件中输出数据
+                while((bytesRead=inputStream.read())!=-1){
+                    zos.write(bytesRead);
+                }
+                inputStream.close();
+                zos.closeEntry(); // 当前文件写完，定位为写入下一条项目
+            }
+            zos.close();
+            String header = request.getHeader("User-Agent").toUpperCase();
+            if (header.contains("MSIE") || header.contains("TRIDENT") || header.contains("EDGE")) {
+                fileName = URLEncoder.encode(fileName, "utf-8");
+                fileName = fileName.replace("+", "%20");    //IE下载文件名空格变+号问题
+            } else {
+                fileName = new String(fileName.getBytes(), "ISO8859-1");
+            }
+            response.reset();
+            response.setContentType("text/plain");
+            response.setContentType("application/octet-stream; charset=utf-8");
+            response.setHeader("Location", fileName);
+            response.setHeader("Cache-Control", "max-age=0");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+            FileInputStream fis = new FileInputStream(zipFile);
+            BufferedInputStream buff = new BufferedInputStream(fis);
+            BufferedOutputStream out=new BufferedOutputStream(response.getOutputStream());
+            byte[] car=new byte[1024];
+            int l=0;
+            while (l < zipFile.length()) {
+                int j = buff.read(car, 0, 1024);
+                l += j;
+                out.write(car, 0, j);
+            }
+            // 关闭流
+            fis.close();
+            buff.close();
+            out.close();
+
+            ossClient.shutdown();
+            // 删除临时文件
+            zipFile.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
 	 * 上传文件
 	 */
 	public boolean upload(String filepath, InputStream inputstream) {
